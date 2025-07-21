@@ -209,9 +209,12 @@ app.post('/history/:id', async (req, res) => {
     res.status(500).json({ error: 'Server error while updating history' });
   }
 });
-app.get('/history', async (req, res) => {
+app.get('/history/:id', async (req, res) => {
   try {
-   const history123 = await registerModel.find({}, 'history');
+    const id = req.params.id;
+
+    // Fetch the history for the user by ID
+   const history123 = await registerModel.findById(id, 'history');
    res.status(200).json({
       message: 'History fetched successfully',
       history: history123
