@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-
+import axios from 'axios';
 import registerModel from '../registermodel.js';
 
 dotenv.config();
@@ -225,8 +225,28 @@ app.get('/history/:id', async (req, res) => {
     res.status(500).json({ error: 'Server error while fetching history' });
   }})
 
-// // Start server
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
+app.post('/send', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+const result = await axios.post('https://aiart-zroo.onrender.com/api/generate', {
+  "video_description": prompt,
+  "negative_prompt": "blurry, low quality, distorted faces, poor lighting",
+  "style_preset": "neon-punk",
+  "aspect_ratio": "16:9",
+  "output_format": "png",
+  "seed": 0
+})
+
+res.status(200).json({ response: result }
+)
+
+
+
+  } catch (error) {
+    console.error('Error in /send endpoint:', error);
+    res.status(500).json({ error: 'Server error in /send endpoint' });
+  }
+});
+  
+
 export default app
