@@ -237,9 +237,8 @@ const result = await axios.post('https://aiart-zroo.onrender.com/api/generate', 
   "seed": 0
 })
 
-res.status(200).json({ response: result }
-)
 
+res.status(200).send({ response: result })
 
 
   } catch (error) {
