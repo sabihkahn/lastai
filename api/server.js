@@ -226,26 +226,42 @@ app.get('/history/:id', async (req, res) => {
   }})
 
 app.post('/send', async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt || !prompt.trim()) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+
   try {
-    const { prompt } = req.body;
-const result = await axios.post('https://aiart-zroo.onrender.com/api/generate', {
-  "video_description": prompt,
-  "negative_prompt": "blurry, low quality, distorted faces, poor lighting",
-  "style_preset": "neon-punk",
-  "aspect_ratio": "16:9",
-  "output_format": "png",
-  "seed": 0
-})
+    const axiosRes = await axios.post(
+      'https://aiart-zroo.onrender.com/api/generate',
+      {
+        video_description: prompt,
+        negative_prompt: 'blurry, low quality, distorted faces, poor lighting',
+        style_preset: 'neon-punk',
+        aspect_ratio: '16:9',
+        output_format: 'png',
+        seed: 0
+      }
+    );
 
+    // axiosRes.data is already a plain object
+    const { success, message, image_url } = axiosRes.data;
 
-res.status(200).send({ response: result })
+    if (!success) {
+      return res.status(502).json({ error: message || 'Image generation failed' });
+    }
 
+    // Return only the URL (and any other fields you want)
+    return res.status(200).json({ imageUrl: image_url });
 
   } catch (error) {
-    console.error('Error in /send endpoint:', error);
-    res.status(500).json({ error: 'Server error in /send endpoint' });
+    console.error('Error in /send endpoint:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Server error in /send endpoint' });
   }
 });
-  
 
+  
+// app.listen(3000, () => {
+//   console.log(`Server is running on port 3000`);
+// })
 export default app
